@@ -68,8 +68,9 @@ def sim_wafer(wafertype: str, wafername: str) -> dict:
 
 def make_det_table(focalplane_dict):
     """
-    Function to make detector table from focalplane dictionary
-    
+    Function to make a full EoR-Spec detector table
+    Three EoR-Spec wafers are simulated and arranged in a tube
+        
     Args:
     focalplane_dict (dict): dictionary containing the focalplane information
     
