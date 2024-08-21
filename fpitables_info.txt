@@ -1,13 +1,13 @@
 This file provides information about the tree structure of the FPI dets tables:
 
 Case 1: Cosidering each FPI step in full
-/ (root group)
+./fpi_data/fpisteps_h5
 │
-├── fpistep210
+├── fpistep210 (step210_dettable.h5)
 │
-├── fpistep216
+├── fpistep216 (step216_dettable.h5)
 │
-└── fpistep222
+└── fpistep222 (step222_dettable.h5)
 |
 |
 .
@@ -17,19 +17,19 @@ Case 1: Cosidering each FPI step in full
 --------------------------------------------------------------
 
 Case 2: Considering each FPI Freq channel in full
-/ (root group)
+./fpi_data/fchl_h5
 │
-├── freq_chl222
-│   ├── fpistep210
-│   └── fpistep216
+├── chnl_211
+│   ├── step210 (f211_step210_d296_dettable.h5)
+│   └── step216
 |   |
 |   |
 |   .
 |   .
 |   .
 │
-└── freq_chl224
-|   ├── fpistep210
+└── chnl_213
+|   ├── fpistep210 (f213_step210_d356_dettable.h5)
 |   └── fpistep216
 |   |
 |   |
