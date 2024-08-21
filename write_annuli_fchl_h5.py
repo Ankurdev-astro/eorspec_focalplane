@@ -1,3 +1,15 @@
+"""
+This script processes the annuli data for each channel and each step and writes the results to HDF5 files.
+It iterates over frequency channels and FPI steps to generate separate directories and files
+for each channel. The script reads a detector table from an HDF5 file, 
+processes the annuli data using the `process_annuli_fchl` function, 
+and writes the results to separate HDF5 files for each frequency channel and FPI step.
+
+Purpose:
+The purpose of this script is to organize and store the processed annuli data in a 
+structured manner for further analysis and visualization in the EoR-Spec project.
+"""
+
 #Imports
 from astropy.table import QTable
 import os
@@ -18,10 +30,9 @@ if not os.path.exists(freq_channels_h5):
     os.makedirs(freq_channels_h5)
     print(f"Created directory: {freq_channels_h5}")
         
-# freq_chl = 351
 for i, freq_chl in enumerate(freq_channels):
-    if i == 2:
-        break
+    # if i == 2:
+    #     break
     print("\n","="*50,"\n")
     print(f"Processing freq channel {freq_chl} GHz...")
     
@@ -57,3 +68,5 @@ for i, freq_chl in enumerate(freq_channels):
             print(f"Wrote h5 file for freq channel {freq_chl} GHz", 
                 f"and FPI {step} in {h5file_path}...", 
                 "\n")
+            
+print("Done!")
