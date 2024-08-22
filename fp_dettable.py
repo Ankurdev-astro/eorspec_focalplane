@@ -1,7 +1,29 @@
 """
-This script handles the creation of detector Qtables for EoR-Spec in TOAST3 format.
+This script handles the creation of detector Qtables for EoR-Spec in TOAST3 format and writes table to h5 file.
 It includes functions to simulate wafers and manage detector data for the focal plane.
+
+Functions:
+- sim_wafer(wafertype: str, wafername: str) -> dict: Simulates a wafer for EoR-Spec focal plane.
+- make_det_table(focalplane_dict): Makes a full EoR-Spec detector table.
+- main(): Main function that creates EoR-Spec detectors and tube, rotates wafers, and saves the detector table to an HDF5 file.
+
+Description:
+The `sim_wafer` function simulates a wafer for the EoR-Spec focal plane based on the given wafer type and name. 
+It returns a dictionary containing the wafer information.
+The `make_det_table` function creates a full EoR-Spec detector table by taking a focal plane dictionary as input.
+It sets arbitrary values for various parameters such as band center, bandwidth, sample rate, etc., 
+and creates a QTable object with columns representing different detector properties.
+The `main` function is the main entry point of the script. It calls the `sim_wafer` function to simulate
+three EoR-Spec wafers and stores the results in separate variables. Then, it calls the `make_det_table` 
+function to create detector tables for each wafer. The wafer centers are defined using quaternion coordinates, 
+and the wafers are rotated using a rotation quaternion. The rotated detector tables are stacked together 
+to create a single detector table. Finally, the detector table is saved to an HDF5 file.
+
 """
+
+
+
+
 ## File handles making detector Qtables for EoR-Spec in TOAST3 format
 
 #imports
@@ -59,6 +81,8 @@ def sim_wafer(wafertype: str, wafername: str) -> dict:
     # the gap is the same as the center spacing within a rhombus.
     # https://github.com/simonsobs/sotodlib/blob/master/sotodlib/toast/sim_focalplane.py#L87
     gap = 0.0 * u.degree #additional gap between the edges of the rhombi.
+    # additonal gap compared to the default gap in pixel spacing.
+    
     suffix = "_" + wafername
     wafer = rhombus_hex_layout(
             nrhombus, width, "eorspec_", suffix, gap=gap, pol=pol
@@ -142,92 +166,95 @@ def make_det_table(focalplane_dict):
     
     return det_table
 
+def main():
+    ##Creating EoR-Spec detectors and tube
+    #Focal plane wafer dicts for eorspec wafers
+    eorspec_lfa1 = sim_wafer(wafertype="lfa", wafername="lfa1")
+    eorspec_lfa2 = sim_wafer(wafertype="lfa", wafername="lfa2")
+    eorspec_hfa = sim_wafer(wafertype="hfa", wafername="hfa")
 
-##Creating EoR-Spec detectors and tube
-#Focal plane wafer dicts for eorspec wafers
-eorspec_lfa1 = sim_wafer(wafertype="lfa", wafername="lfa1")
-eorspec_lfa2 = sim_wafer(wafertype="lfa", wafername="lfa2")
-eorspec_hfa = sim_wafer(wafertype="hfa", wafername="hfa")
+    #Make det tables from eorspec wafers
+    det_table_lfa1 = make_det_table(eorspec_lfa1)
+    det_table_lfa2 = make_det_table(eorspec_lfa2)
+    det_table_hfa = make_det_table(eorspec_hfa)
 
-#Make det tables from eorspec wafers
-det_table_lfa1 = make_det_table(eorspec_lfa1)
-det_table_lfa2 = make_det_table(eorspec_lfa2)
-det_table_hfa = make_det_table(eorspec_hfa)
+    #Defining quaternion wafer centers
+    # waferspace (in mm): This parameter defines the distance between the centers 
+    # of adjacent wafer arrays on the focal plane. It represents the physical 
+    # separation between the wafer centers and is crucial for ensuring proper 
+    # spacing and coverage of the focal plane..
+    # 
+    # wradius (in mm): This parameter represents the radial distance from the 
+    # center of the focal plane (or tube center) to the center of each wafer. 
+    # It is derived from waferspace and determines the positioning of the wafers 
+    # relative to the optical axis of the telescope.
 
-#Defining quaternion wafer centers
-#https://github.com/simonsobs/sotodlib/blob/master/sotodlib/sim_hardware.py#L478
-## This tube spacing in mm corresponds to 1.78 degrees projected on
-## the sky at a plate scale of 0.00495 deg/mm.
-platescale = 0.00495 #SO line #478
-# https://github.com/simonsobs/sotodlib/blob/master/sotodlib/sim_hardware.py#L385
-waferspace = 128.4 #SO line #385
+    #https://github.com/simonsobs/sotodlib/blob/master/sotodlib/sim_hardware.py#L478
+    ## This tube spacing in mm corresponds to 1.78 degrees projected on
+    ## the sky at a plate scale of 0.00495 deg/mm.
+    platescale = 0.00495 #SO line #478
+    # https://github.com/simonsobs/sotodlib/blob/master/sotodlib/sim_hardware.py#L385
+    waferspace = 128.4 #SO line #385
 
-#https://github.com/simonsobs/sotodlib/blob/master/sotodlib/toast/sim_focalplane.py#L690   
-wradius = 0.5 * (waferspace * platescale * np.pi / 180.0) #SO Line 690
+    #https://github.com/simonsobs/sotodlib/blob/master/sotodlib/toast/sim_focalplane.py#L690   
+    wradius = 0.5 * (waferspace * platescale * np.pi / 180.0) #SO Line 690
 
-#https://github.com/simonsobs/sotodlib/blob/master/sotodlib/toast/sim_focalplane.py#L696
-qwcenters = [
-                xieta_to_quat(
-                    -wradius, wradius / np.sqrt(3.0), 0.0
-                ),
-                xieta_to_quat(
-                    wradius, wradius / np.sqrt(3.0), 0.0
-                ),
-                xieta_to_quat(
-                    0.0, -2.0 * wradius / np.sqrt(3.0), 0.0
-                ),
-            ]
+    #https://github.com/simonsobs/sotodlib/blob/master/sotodlib/toast/sim_focalplane.py#L696
+    qwcenters = [
+                    xieta_to_quat(
+                        -wradius, wradius / np.sqrt(3.0), 0.0
+                    ),
+                    xieta_to_quat(
+                        wradius, wradius / np.sqrt(3.0), 0.0
+                    ),
+                    xieta_to_quat(
+                        0.0, -2.0 * wradius / np.sqrt(3.0), 0.0
+                    ),
+                ]
 
-thirty = np.pi / 6.0  # 30 degrees in radians
-sixty = np.pi / 3.0
-zaxis = np.array([0, 0, 1], dtype=np.float64)
+    thirty = np.pi / 6.0  # 30 degrees in radians
+    sixty = np.pi / 3.0
+    zaxis = np.array([0, 0, 1], dtype=np.float64)
 
-#Rotating wafers
-cp_dettable_lfa1 = deepcopy(det_table_lfa1)
-cp_dettable_lfa2 = deepcopy(det_table_lfa2)
-cp_dettable_hfa = deepcopy(det_table_hfa)
-rotation_quat = qa.from_axisangle(zaxis, sixty)
+    #Rotating wafers
+    cp_dettable_lfa1 = deepcopy(det_table_lfa1)
+    cp_dettable_lfa2 = deepcopy(det_table_lfa2)
+    cp_dettable_hfa = deepcopy(det_table_hfa)
+    rotation_quat = qa.from_axisangle(zaxis, sixty)
 
-#HFA is at position 1
-#LFA takes position 0,2
-# This is arbitrary. Self definition
+    #HFA is at position 1
+    #LFA takes position 0,2
+    # This is arbitrary. Self definition
 
-for det,det_quat in enumerate(cp_dettable_lfa1["quat"]):
-    rotated_quat = qa.mult(rotation_quat, det_quat)
-    quat_shift = qa.mult(qwcenters[0], rotated_quat)
-    cp_dettable_lfa1["quat"][det] = quat_shift
+    for det,det_quat in enumerate(cp_dettable_lfa1["quat"]):
+        rotated_quat = qa.mult(rotation_quat, det_quat)
+        quat_shift = qa.mult(qwcenters[0], rotated_quat)
+        cp_dettable_lfa1["quat"][det] = quat_shift
 
-for det,det_quat in enumerate(cp_dettable_hfa["quat"]):
-    rotated_quat = qa.mult(rotation_quat, det_quat)
-    quat_shift = qa.mult(qwcenters[1], rotated_quat)
-    cp_dettable_hfa["quat"][det] = quat_shift
+    for det,det_quat in enumerate(cp_dettable_hfa["quat"]):
+        rotated_quat = qa.mult(rotation_quat, det_quat)
+        quat_shift = qa.mult(qwcenters[1], rotated_quat)
+        cp_dettable_hfa["quat"][det] = quat_shift
 
-for det,det_quat in enumerate(cp_dettable_lfa2["quat"]):
-    rotated_quat = qa.mult(rotation_quat, det_quat)
-    quat_shift = qa.mult(qwcenters[2], rotated_quat)
-    cp_dettable_lfa2["quat"][det] = quat_shift 
+    for det,det_quat in enumerate(cp_dettable_lfa2["quat"]):
+        rotated_quat = qa.mult(rotation_quat, det_quat)
+        quat_shift = qa.mult(qwcenters[2], rotated_quat)
+        cp_dettable_lfa2["quat"][det] = quat_shift 
 
-dettable_stack = vstack([
-                    cp_dettable_lfa1,
-                    cp_dettable_lfa2,
-                    cp_dettable_hfa
-                    ])
+    dettable_stack = vstack([
+                        cp_dettable_lfa1,
+                        cp_dettable_lfa2,
+                        cp_dettable_hfa
+                        ])
+    
+    return dettable_stack
 
-
-#No plotting here
-# plot_focalplane_helper(
-#     focalplane=fp_test_edit8,
-#     width=width,
-#     height=width,
-#     show_labels=False,
-#     outfile="fp_eorspec_rot2_2024.pdf")
-
-# plt.show()
-
-
-# save dettable_stack to hdf5 file using astropy write
-print(" Writing detector table to HDF5 file ...")
-dettable_stack.write('./eorspec_dettable.h5', path='dettable_stack', 
+if __name__ == "__main__":
+    dettable_stack = main()
+    
+    # save dettable_stack to hdf5 file using astropy write
+    print(" Writing detector table to HDF5 file ...")
+    dettable_stack.write('./eorspec_dettable.h5', path='dettable_stack', 
                                 serialize_meta=True,overwrite=True)
 
 
