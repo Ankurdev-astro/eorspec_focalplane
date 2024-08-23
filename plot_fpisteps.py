@@ -36,7 +36,9 @@ for h5file in os.listdir(target_dir):
 
     # Plotting the annuli
     sample_rate = 244 * u.Hz
-    width= 1.2 * u.degree
+    width= 1.3 * u.degree
+    #width of plot set to 1.3 degrees fixed in plot_eorspec_annuli
+    
     outfile_path = os.path.join(plots_dir, f"fp_eorspec_{path}.png")
     # outfile_path = os.path.join(plots_dir, f"fp_eorspec_{path}.pdf")
     fp_test =  Focalplane(

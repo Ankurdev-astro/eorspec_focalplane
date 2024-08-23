@@ -3,6 +3,8 @@ This module contains helper functions for plotting the EoR-Spec full focal plane
 It includes functions to visualize the arrangement of detectors and their properties.
 """
 ### Helper EoR-Spec FP plotting functions
+### Modified from: 
+# https://github.com/hpc4cmb/toast/blob/cc7a91abb8ddf86a31272c8c49de633dcf4d2d06/src/toast/instrument_sim.py#L1048
 
 #Imports
 import numpy as np
@@ -288,8 +290,8 @@ def plot_eorspec_annuli(
 
     import matplotlib.pyplot as plt
 
-    width = 1.2 * u.degree 
-    height = 1.2 * u.degree
+    width = 1.3 * u.degree 
+    height = 1.3 * u.degree
 
     width_deg = width.to_value(u.degree)
     height_deg = height.to_value(u.degree)
@@ -413,143 +415,4 @@ def plot_eorspec_annuli(
         plt.savefig(outfile, dpi=figdpi, bbox_inches="tight", format="pdf")
         plt.close()
     return fig
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-##================================================================================================##
-#Backup code from: Aug 15, 2024
-
-# def plot_eorspec_annuli(
-#     focalplane=None,
-#     outfile=None,
-#     show_labels=False,
-#     label_step=False,
-# ):
-#     """Visualize different annuli of EoR-Spec
-
-#     This makes a simple plot of the detector positions on the projected
-#     focalplane.  The size of detector circles are controlled by the detector
-#     "fwhm" key, which is in arcminutes. 
-
-#     Args:
-#         outfile (str): Output PDF path.
-#         dets (dict): Dictionary of detector properties.
-#         width (float): Width of plot in degrees (None = autoscale).
-#         height (float): Height of plot in degrees (None = autoscale).
-#         labels (bool): If True, label each detector.
-#         label_step (bool): If True, includes FPI step info in label
-
-#     Returns:
-#         None
-
-#     """
-    
-#     if focalplane is None:
-#         raise RuntimeError("You must specify a Focalplane instance")
-
-#     if outfile is not None:
-#         set_matplotlib_backend(backend="pdf")
-
-#     import matplotlib.pyplot as plt
-
-#     width = 1.2 * u.degree 
-#     height = 1.2 * u.degree
-
-#     width_deg = width.to_value(u.degree)
-#     height_deg = height.to_value(u.degree)
-
-#     xfigsize = 6
-#     yfigsize = 6
-#     figdpi = 100
-
-#     # Compute the font size to use for detector labels
-#     fontpix = 0.05 * figdpi
-#     fontpt = int(0.75 * fontpix)
-
-#     fig = plt.figure(figsize=(xfigsize, yfigsize), dpi=figdpi)
-#     ax = fig.add_subplot(1, 1, 1)
-#     fig.patch.set_facecolor('whitesmoke')
-
-#     half_width = 0.6 * width_deg
-#     half_height = 0.6 * height_deg
-
-#     ax.set_xlabel("Boresight X Degrees", fontsize="medium")
-#     ax.set_ylabel("Boresight Y Degrees", fontsize="medium")
-#     ax.set_xlim([-half_width, half_width])
-#     ax.set_ylim([-half_height, half_height])
-
-#     xaxis = np.array([1.0, 0.0, 0.0], dtype=np.float64)
-#     yaxis = np.array([0.0, 1.0, 0.0], dtype=np.float64)
-#     zaxis = np.array([0.0, 0.0, 1.0], dtype=np.float64)
-    
-#     # Initialize the colormap and the Normalize object
-#     cmap = plt.cm.get_cmap('nipy_spectral_r')
-#     # Define the boundaries and normalize
-#     boundaries = np.arange(210, 425, 2)
-#     norm = BoundaryNorm(boundaries, cmap.N)
-    
-    
-
-#     for d in focalplane.detectors:
-#         quat = focalplane[d]["quat"]
-#         fwhm = focalplane[d]["fwhm"].to_value(u.arcmin)
-#         wtype  = focalplane[d]["wtype"]
-#         annuli_name = focalplane[d]["annuli_name"]
-#         freq_channel = focalplane[d]["freq_channel"]
-
-#         # radius in degrees
-#         detradius = 0.5 * fwhm / 60.0
-
-#         # rotation from boresight
-#         rdir = qa.rotate(quat, zaxis).flatten()
-#         mag = np.arccos(rdir[2]) * 180.0 / np.pi
-#         ang = np.arctan2(rdir[1], rdir[0])
-#         orient = qa.rotate(quat, xaxis).flatten()
-#         polang = np.arctan2(orient[1], orient[0])
-#         xpos = mag * np.cos(ang)
-#         ypos = mag * np.sin(ang)
-#         xi, eta, gamma = quat_to_xieta(quat)
-
-#         #EoR-Spec Det Face Color
-        
-        
-#         if len(annuli_name) != 0:
-#             detface = cmap(norm(freq_channel))
-#             # print(detface)
-#         else:
-#             if wtype == "lfa":
-#                 detface = "dimgrey"
-#             elif wtype == "hfa":
-#                 detface = "slategrey"
-#             else:
-#                 detface = "black"
-        
-
-#         # circ = plt.Circle((xpos, ypos), radius=detradius, fc=detface, ec="gray")
-#         circ = plt.Circle((xpos, ypos), radius=detradius, fc=detface)
-#         ax.add_artist(circ)
-
-#         ascale = 1.5
-
-#     if outfile is None:
-#         output_plt = plt.show();
-#         print()
-#     else:
-#         plt.savefig(outfile, dpi=figdpi, bbox_inches="tight", format="pdf")
-#         plt.close()
-#     return fig
     

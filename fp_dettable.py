@@ -80,7 +80,9 @@ def sim_wafer(wafertype: str, wafername: str) -> dict:
     # By default, the rhombi are aligned such that the center spacing across
     # the gap is the same as the center spacing within a rhombus.
     # https://github.com/simonsobs/sotodlib/blob/master/sotodlib/toast/sim_focalplane.py#L87
-    gap = 0.0 * u.degree #additional gap between the edges of the rhombi.
+    # gap = 0.0 * u.degree #additional gap between the edges of the rhombi.
+    gap_edge = 6.5 #mm #Rodrigo CAD file
+    gap = platescale * gap_edge * u.degree # taking gap between edges as 1.7mm
     # additonal gap compared to the default gap in pixel spacing.
     
     suffix = "_" + wafername
@@ -194,7 +196,8 @@ def main():
     ## the sky at a plate scale of 0.00495 deg/mm.
     platescale = 0.00495 #SO line #478
     # https://github.com/simonsobs/sotodlib/blob/master/sotodlib/sim_hardware.py#L385
-    waferspace = 128.4 #SO line #385
+    # waferspace = 128.4 #SO line #385
+    waferspace = 138.5 #mm #Rodrigo CAD file
 
     #https://github.com/simonsobs/sotodlib/blob/master/sotodlib/toast/sim_focalplane.py#L690   
     wradius = 0.5 * (waferspace * platescale * np.pi / 180.0) #SO Line 690
@@ -251,10 +254,13 @@ def main():
 
 if __name__ == "__main__":
     dettable_stack = main()
-    
+    # hf_fulltable_file = './test_dir/eorspec_dettable.h5'
+    hf_fulltable_file = './eorspec_dettable.h5'
     # save dettable_stack to hdf5 file using astropy write
-    print(" Writing detector table to HDF5 file ...")
-    dettable_stack.write('./eorspec_dettable.h5', path='dettable_stack', 
+    
+    print(f" Writing detector table to HDF5 file {hf_fulltable_file} ...")
+    dettable_stack.write(hf_fulltable_file, path='dettable_stack', 
                                 serialize_meta=True,overwrite=True)
+    
 
 

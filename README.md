@@ -10,4 +10,13 @@ Final output(s) is/are Astropy Detector table(s) with Detector parameters which 
 for a TOAST FocalPlane Class.
 
 
+![Example EoR-Spec Focal Plane simulation for an FPI step](fpi_data/fpi_plots/fp_eorspec_step.png)
+
+
+EoR-Spec Frequency and Annulus data taken from:
+https://github.com/ccatobs/eor_spec_mapping_simulations/blob/main/params/annulus_radii.csv
+
+
+
+
 

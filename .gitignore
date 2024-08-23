@@ -2,3 +2,5 @@ __pycache__
 .ipynb_checkpoints
 __init__.py-*
 fpi_data/*
+test_dir/*
+!fpi_data/fpi_plots/

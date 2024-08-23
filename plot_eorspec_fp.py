@@ -12,13 +12,15 @@ import matplotlib.pyplot as plt
 import astropy.units as u
 
 # Read the Astropy Qtable from the HDF5 file
+# hf_fulltable_file = './test_dir/eorspec_dettable.h5'
+hf_fulltable_file = './eorspec_dettable.h5'
 # QTable includes the Quantities as well
-dettable_stack = QTable.read('./eorspec_dettable.h5', path='dettable_stack')
+dettable_stack = QTable.read(hf_fulltable_file, path='dettable_stack')
 
 #print(dettable_stack[:10])
 
 sample_rate = 244 * u.Hz
-width= 1.2 * u.degree
+width= 1.3 * u.degree
 fp_test =  Focalplane(
                 detector_data=dettable_stack,
                 sample_rate=sample_rate,
@@ -29,8 +31,8 @@ plot_focalplane_eorspec(
     focalplane=fp_test,
     width=width,
     height=width,
-    show_labels=False,)
-    # outfile="fp_eorspec_rot1_2024_v1.pdf")
+    show_labels=False,
+    outfile="test_dir/fp_eorspec_rot2_2024_v4.pdf")
 
 plt.show()
 
