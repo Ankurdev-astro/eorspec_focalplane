@@ -13,6 +13,7 @@ from toast import qarray as qa
 from toast.instrument_coords import quat_to_xieta
 from toast.vis import set_matplotlib_backend
 from matplotlib.colors import BoundaryNorm
+from matplotlib.animation import FuncAnimation
 
 def plot_focalplane_eorspec(
     focalplane=None,
@@ -416,3 +417,124 @@ def plot_eorspec_annuli(
         plt.close()
     return fig
     
+
+def animate_eorspec_annuli(
+    focalplane_list=None,
+    outfile="EoR-Spec_anim_FPI_01fps.gif",
+    label_step=False,
+    interval=1000
+):
+    """
+    Animate different annuli of EoR-Spec over multiple focal planes.
+    
+    This function animates the detector positions on the projected focal plane.
+    
+    Arguments:
+    focalplane_list (list): A list of Focalplane instances to animate.
+    outfile (str): Output file path for the animation (GIF or MP4).
+    label_step (bool): If True, include FPI step info in labels.
+    interval (int): Interval between frames in milliseconds.
+    
+    Returns:
+    None
+    """
+    
+    if focalplane_list is None or len(focalplane_list) == 0:
+        raise RuntimeError("Must specify a list of Focalplane instances")
+    
+    import matplotlib.pyplot as plt
+
+    width = 1.3 * u.degree 
+    height = 1.3 * u.degree
+
+    width_deg = width.to_value(u.degree)
+    height_deg = height.to_value(u.degree)
+
+    xfigsize = 11
+    yfigsize = 11
+    figdpi = 100
+
+    fig = plt.figure(figsize=(xfigsize, yfigsize), dpi=figdpi)
+    ax = fig.add_subplot(1, 1, 1)
+    fig.patch.set_facecolor('whitesmoke')
+
+    half_width = 0.6 * width_deg
+    half_height = 0.6 * height_deg
+
+    # Initialize the colormap and the Normalize object
+    cmap = plt.cm.get_cmap('nipy_spectral_r')
+    boundaries = np.arange(210, 425, 2)
+    norm = BoundaryNorm(boundaries, cmap.N)
+
+    def update_plot(frame_idx):
+        ax.clear()
+        focalplane = focalplane_list[frame_idx]
+
+        if label_step:
+            for d in focalplane.detectors:
+                try:
+                    fpi_step = focalplane[d]["fpi_step"]
+                    ax.text(0.4,0.6, 
+                    fr"FPI step {frame_idx+1}, $f_0$: {fpi_step.split('step')[1]} GHz", 
+                    color='black', fontsize="x-large", 
+                    horizontalalignment='center',
+                    verticalalignment='center'
+                    )
+                    break
+                except:
+                    pass
+
+        for d in focalplane.detectors:
+            quat = focalplane[d]["quat"]
+            fwhm = focalplane[d]["fwhm"].to_value(u.arcmin)
+            wtype  = focalplane[d]["wtype"]
+            annuli_name = focalplane[d]["annuli_name"]
+            freq_channel = focalplane[d]["freq_channel"]
+
+            detradius = 0.5 * fwhm / 60.0
+
+            rdir = qa.rotate(quat, np.array([0.0, 0.0, 1.0])).flatten()
+            mag = np.arccos(rdir[2]) * 180.0 / np.pi
+            ang = np.arctan2(rdir[1], rdir[0])
+            xpos = mag * np.cos(ang)
+            ypos = mag * np.sin(ang)
+
+            if len(annuli_name) != 0:
+                detface = cmap(norm(freq_channel))
+            else:
+                if wtype == "lfa":
+                    detface = "dimgrey"
+                elif wtype == "hfa":
+                    detface = "slategrey"
+                else:
+                    detface = "black"
+
+            circ = plt.Circle((xpos, ypos), radius=detradius, fc=detface)
+            ax.add_artist(circ)
+
+        ax.set_xlim([-half_width, half_width])
+        ax.set_ylim([-half_height, half_height])
+        ax.set_title("EoR-Spec projected Focal Plane Arrays", fontsize="xx-large")
+        ax.set_xlabel("Boresight X Degrees", fontsize="large")
+        ax.set_ylabel("Boresight Y Degrees", fontsize="large")
+
+        cb_ax = fig.add_axes([0.91, 0.124, 0.03, 0.754])
+        sm = plt.cm.ScalarMappable(cmap=cmap, norm=norm)
+        sm.set_array([])
+        reduced_ticks = boundaries[::10]
+        cbar = plt.colorbar(sm, boundaries=boundaries, 
+                            ticks=reduced_ticks, 
+                            orientation='vertical', cax=cb_ax)
+        cbar.set_label('EoR-Spec Band Frequencies [GHz]', size="x-large")
+        return ax
+
+    ani = FuncAnimation(fig, update_plot, frames=len(focalplane_list), interval=interval, blit=False)
+    
+    if outfile.endswith(".gif"):
+        ani.save(outfile, writer='imagemagick', fps=1000/interval)
+    elif outfile.endswith(".mp4"):
+        ani.save(outfile, writer='ffmpeg', fps=1000/interval)
+    else:
+        raise ValueError("Unsupported file format. Use .gif or .mp4.")
+
+    plt.close(fig)
