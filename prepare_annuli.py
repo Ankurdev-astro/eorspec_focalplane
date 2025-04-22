@@ -4,8 +4,29 @@ It includes functionality to filter detectors based on radius and other paramete
 """
 #Imports
 from astropy.table import Column
+import astropy.units as u
 import toast.qarray as qa
 import numpy as np
+
+# Constants
+# EoR-Spec bands
+# The bands are defined by the lower and upper frequency limits in GHz
+# For each band, we provide the expected PSD NET in K sqrt(s) and the FWHM in arcmin
+eorspec_bands = {
+            (200, 250): {"psd_net": 26.9e-6, "fwhm": 0.97},
+            (250, 320): {"psd_net": 41.97e-6, "fwhm": 0.8},
+            (320, 380): {"psd_net": 175.47e-6, "fwhm": 0.62},
+            (380, 440): {"psd_net": 497.05e-6, "fwhm": 0.55},
+        }
+
+def get_psd_fwhm(channel):
+    """
+    Returns the PSD NET and FWHM for a given frequency channel.    
+    """
+    for (f_min, f_max), values in eorspec_bands.items():
+        if f_min <= channel < f_max:
+            return values
+    return "Check channel conditions"
 
 def mask_dets_annulus(
         dets_table, r_min_rad, r_max_rad, wtype, 
@@ -160,11 +181,20 @@ def process_annuli_fchl(dets_table, fpistep_infotxt, target_fchl, fpi_step):
             # Create annulus_name
             annulus_name = f"A{annulus_num}"
             print(wtype, annulus_name, freq_channel)
+            band_data = get_psd_fwhm(freq_channel)
             # print("Debug point 1")
 
             dets_table = mask_dets_annulus(dets_table, r_min, r_max,
                                             wtype, freq_channel, fpi_step, 
                                             annulus_name, remove_dets=True)
+            
+            for idet, name in enumerate(dets_table["name"]):
+                dets_table[idet]["name"] = f"{name}-{freq_channel}"
+                dets_table[idet]["bandcenter"] = freq_center * u.GHz
+                dets_table[idet]["bandwidth"] = freq_delta * u.GHz
+                dets_table[idet]["psd_net"] = band_data["psd_net"] * u.K * np.sqrt(1.0 * u.second)
+                dets_table[idet]["fwhm"] = band_data["fwhm"] * u.arcmin
+            
             break
          
     if not found_fchl:

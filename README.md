@@ -13,8 +13,6 @@ for a TOAST FocalPlane Class.
 
 ![EoR-Spec Focal Plane simulation for 15 FPI steps](fpi_data/fpi_plots/EoR-Spec_anim_FPI_01fps.gif)
 
-
-
 EoR-Spec Frequency and Annulus data taken from:
 https://github.com/ccatobs/eor_spec_mapping_simulations/blob/main/params/annulus_radii.csv
 

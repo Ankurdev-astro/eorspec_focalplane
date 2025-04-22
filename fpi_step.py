@@ -114,8 +114,8 @@ def annulus_FPIstep(step, csv_file = 'annulus_radii.csv'):
                 freq_channel = int(np.floor(freq_centre))
                 
                 # Additional conditions based on band type and Freq
-                if (wtype == "LFA" and 209 <= freq_min and freq_max <= 316) or \
-                   (wtype == "HFA" and 315 <= freq_min and freq_max <= 422):
+                if (wtype == "LFA" and 205 <= freq_min and freq_max <= 316) or \
+                   (wtype == "HFA" and 315 <= freq_min and freq_max <= 430):
                     
                     # Write to the text file
                     with open(f_write, "a") as f:
@@ -173,12 +173,6 @@ def process_steps(csv_file='annulus_radii.csv'):
     return fpi_steps
 
 
-# fpi_steps = process_steps()
-# print(fpi_steps)
-
-# for step in fpi_steps:
-#     annulus_FPIstep(step)
-
 def getall_freq_chl():
     """
     Returns a list of all unique frequency channels from the annulus results files.
@@ -207,3 +201,12 @@ def getall_freq_chl():
         
     # print(f"Freq channel list: {freq_channel_list}")
     return freq_channel_list
+
+if __name__ == "__main__":
+    fpi_steps = process_steps()
+    print(fpi_steps)
+
+    print("\n","="*50,"\n")
+    for step in fpi_steps:
+        print(f"Processing FPI step {step}...")
+        annulus_FPIstep(step)

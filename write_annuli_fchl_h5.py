@@ -57,6 +57,7 @@ for i, freq_chl in enumerate(freq_channels):
             ndets = len(dets_table)
             if ndets == 0:
                 continue
+            
             fchl_step_h5 = os.path.join(fchl_h5, f"{step}")
             if not os.path.exists(fchl_step_h5):
                 os.makedirs(fchl_step_h5)
