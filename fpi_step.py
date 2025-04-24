@@ -20,6 +20,7 @@ def calculate_annulus(csv_file, column_name, annulus_num):
     
     column_name : str
         The column name containing the radius data for the specified FPI step and band type.
+        Format: r_step210_LFA
     
     annulus_num : int
         The annulus number for which to calculate the information.
@@ -35,23 +36,30 @@ def calculate_annulus(csv_file, column_name, annulus_num):
     
     """
     
+    row_num = annulus_num - 1 # For zero indexing
+    if row_num < 0:
+        raise ValueError('Minimum Value for Annulus is 0')
     try:
         # Reading Data
         df = pd.read_csv(csv_file)
 
+        column_start = f"{column_name}_start"
+        column_end = f"{column_name}_end"
         # Data Cleaning: Drop NaN rows for the specified column
-        df_cleaned = df.dropna(subset=[column_name])
+        df_cleaned = df.dropna(subset=[column_start])
 
         # Data Extraction: Extract radius and frequency values
-        radius_values = df_cleaned[column_name].values
-        frequency_values = df_cleaned['frequency[GHz]'].values
+        radius_start = df_cleaned[column_start].values
+        radius_end = df_cleaned[column_end].values
+        frequency_min = df_cleaned['frequency_start[GHz]'].values
+        frequency_max = df_cleaned['frequency_end[GHz]'].values
 
         # Annulus Calculation: Determine r_min, r_max, freq_min, and freq_max
-        r_min = round(radius_values[annulus_num - 1], 18)
-        r_max = round(radius_values[annulus_num], 18)
+        r_min = round(radius_start[row_num], 18)
+        r_max = round(radius_end[row_num], 18)
 
-        freq_min = frequency_values[annulus_num - 1]
-        freq_max = frequency_values[annulus_num]
+        freq_min = frequency_min[row_num]
+        freq_max = frequency_max[row_num]
 
         freq_delta = freq_max - freq_min
         freq_centre = (freq_max + freq_min)/2.0
@@ -80,7 +88,7 @@ def annulus_FPIstep(step, csv_file = 'annulus_radii.csv'):
         The path to the CSV file containing the radius and frequency data. 
         Default is 'annulus_radii.csv'.
     
-    Returns:
+    Returns: None
     --------
     File name str.
         Writes the annulus information to a text file named `annulus_results_{step}.txt`.
@@ -96,6 +104,13 @@ def annulus_FPIstep(step, csv_file = 'annulus_radii.csv'):
     ---------
     >>> annulus_FPIstep("step210")
     """
+    
+    # Define LFA and HFA filter ranges
+    LFA_min_freq = 209
+    LFA_max_freq = 316
+    
+    HFA_min_freq = 315
+    HFA_max_freq = 422
     
     # Initialize the text file
     f_write = f"./fpi_data/annuli_data/annulus_results_{step}.txt"
@@ -114,8 +129,8 @@ def annulus_FPIstep(step, csv_file = 'annulus_radii.csv'):
                 freq_channel = int(np.floor(freq_centre))
                 
                 # Additional conditions based on band type and Freq
-                if (wtype == "LFA" and 205 <= freq_min and freq_max <= 316) or \
-                   (wtype == "HFA" and 315 <= freq_min and freq_max <= 430):
+                if (wtype == "LFA" and LFA_min_freq <= freq_min and freq_max <= LFA_max_freq) or \
+                   (wtype == "HFA" and HFA_min_freq <= freq_min and freq_max <= HFA_max_freq):
                     
                     # Write to the text file
                     with open(f_write, "a") as f:
@@ -125,6 +140,7 @@ def annulus_FPIstep(step, csv_file = 'annulus_radii.csv'):
                                 )
                 else:
                     print(f"Skipping annulus {annulus_num} for {wtype} due to frequency range.")
+                    print(f'Wtype: {wtype}, Freq min: {freq_min}, Freq max: {freq_max}', '\n')
 
 
             elif isinstance(result, str):
@@ -149,9 +165,7 @@ def process_steps(csv_file='annulus_radii.csv'):
         A list of FPI steps extracted from the CSV file.
     """
     
-    # fpi_steps = {}
     fpi_steps = []
-    step_number = 1  # Initialize step number
 
     with open(csv_file, mode='r') as file:
         # reading the CSV file
@@ -164,10 +178,8 @@ def process_steps(csv_file='annulus_radii.csv'):
 
     # Filter out the relevant column names and populate the fpi_steps dictionary
     for name in column_names:
-        if "_LFA" in name:
-            step = name.split('_')[1]  # Assuming the format is always r_stepXXX_LFA
-            # fpi_steps[step] = step_number
-            # step_number += 1  # Increment step number
+        if "_LFA_start" in name:
+            step = name.split('_')[1]  # Assuming the format is always r_stepXXX_LFA_start
             fpi_steps.append(step)
     
     return fpi_steps
@@ -208,5 +220,6 @@ if __name__ == "__main__":
 
     print("\n","="*50,"\n")
     for step in fpi_steps:
+        print("\n","-"*50,"\n")
         print(f"Processing FPI step {step}...")
         annulus_FPIstep(step)
