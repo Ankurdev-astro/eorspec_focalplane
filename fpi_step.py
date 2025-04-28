@@ -112,6 +112,12 @@ def annulus_FPIstep(step, csv_file = 'annulus_radii.csv'):
     HFA_min_freq = 315
     HFA_max_freq = 422
     
+    # Create the directory for storing annuli data if it doesn't exist
+    annuli_dir = './fpi_data/annuli_data/'
+    if not os.path.exists(annuli_dir):
+        os.makedirs(annuli_dir)
+        print(f"Created directory: {annuli_dir}")
+    
     # Initialize the text file
     f_write = f"./fpi_data/annuli_data/annulus_results_{step}.txt"
 
@@ -125,22 +131,24 @@ def annulus_FPIstep(step, csv_file = 'annulus_radii.csv'):
         for annulus_num in range(1, 21):  # Adjust the range according to your needs
             result = calculate_annulus(csv_file, column_name, annulus_num)
             if isinstance(result, tuple):
-                r_min, r_max, freq_min, freq_max, freq_centre, freq_delta = result
+                r_min, r_max, freq_start, freq_end, freq_centre, freq_delta = result
                 freq_channel = int(np.floor(freq_centre))
                 
                 # Additional conditions based on band type and Freq
-                if (wtype == "LFA" and LFA_min_freq <= freq_min and freq_max <= LFA_max_freq) or \
-                   (wtype == "HFA" and HFA_min_freq <= freq_min and freq_max <= HFA_max_freq):
+                # if (wtype == "LFA" and LFA_min_freq <= freq_start and freq_end <= LFA_max_freq) or \
+                #    (wtype == "HFA" and HFA_min_freq <= freq_start and freq_end <= HFA_max_freq):
+                if (wtype == "LFA" and freq_end >= LFA_min_freq and freq_start <= LFA_max_freq) or \
+                    (wtype == "HFA" and freq_end >= HFA_min_freq and freq_start <= HFA_max_freq):
                     
                     # Write to the text file
                     with open(f_write, "a") as f:
                         f.write(
                                 f"{wtype}\t{annulus_num}\t{freq_channel}\t{r_min}\t{r_max}\t"
-                                f"{freq_min}\t{freq_max}\t{freq_centre}\t{freq_delta}\n"
+                                f"{freq_start}\t{freq_end}\t{freq_centre}\t{freq_delta}\n"
                                 )
                 else:
                     print(f"Skipping annulus {annulus_num} for {wtype} due to frequency range.")
-                    print(f'Wtype: {wtype}, Freq min: {freq_min}, Freq max: {freq_max}', '\n')
+                    print(f'Wtype: {wtype}, Freq min: {freq_start}, Freq max: {freq_end}', '\n')
 
 
             elif isinstance(result, str):
