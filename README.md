@@ -16,9 +16,14 @@ for a TOAST FocalPlane Class.
 EoR-Spec Frequency and Annulus data taken from:
 https://github.com/ccatobs/eor_spec_mapping_simulations/blob/align_camera_simulations/eor_spec_mapping_simulations/inputs/annulus_radii.csv
 
+
+---
+
+**Corresponding Author**: Ankur Dev (adev@astro.uni-bonn.de)
+
 ### Acknowledgements:
 
-We thank the following for valuable discussions and support with these Focal Plane simulations: 
+We thank the following collaborators for valuable discussions and support with these Focal Plane simulations: 
 Yoko Okada, Thomas Nikola, Gordon Stacey, Rodrigo Freundt and EoR-Spec instrument team
 
 
