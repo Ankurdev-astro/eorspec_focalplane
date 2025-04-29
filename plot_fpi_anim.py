@@ -11,6 +11,8 @@ from astropy.table import QTable
 import astropy.units as u
 from toast.instrument import Focalplane
 from plotting_func import animate_eorspec_annuli
+import matplotlib
+matplotlib.use("Agg")          # pure raster backend – no Qt
 
 fpi_data_dir = './fpi_data/' 
 target_dir = os.path.join(fpi_data_dir, "fpisteps_h5")

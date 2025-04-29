@@ -105,11 +105,12 @@ def make_det_table(focalplane_dict):
     """
     
     #Setting arbitrary values for now
+    #Corrected in prepare_annuli.py
     bandcenter = 280 * u.GHz
     bandwidth = 2 * u.GHz
     sample_rate = 244 * u.Hz
     psd_net = 1 * u.K * np.sqrt(1 * u.second)
-    psd_fmin = 0.1 * u.Hz
+    psd_fmin = 1e-3 * u.Hz
     psd_alpha = 1
     psd_fknee = 1 * u.Hz
     # width=1 * u.degree
@@ -119,13 +120,13 @@ def make_det_table(focalplane_dict):
     det_data = {x: focalplane_dict[x] for x in sorted(focalplane_dict.keys())}
     n_det = len(det_data)
     
-    nominal_freq = str(int(bandcenter.to_value(u.GHz)))
-    det_names = [f"{x}-{nominal_freq}" for x in det_data.keys()]
+    # nominal_freq = str(int(bandcenter.to_value(u.GHz)))
+    det_names = [f"{x}" for x in det_data.keys()]
     det_gamma = u.Quantity([det_data[x]["gamma"] for x in det_data.keys()], u.radian)
     
     det_table = QTable(
     [
-        Column(name="name", data=det_names),
+        Column(name="name", data=det_names, dtype="U30"),
         Column(name="wname", length=n_det, dtype='S4'),
         Column(name="wtype", length=n_det, dtype='S4'),
         Column(name="quat", data=[det_data[x]["quat"] for x in det_data.keys()]),

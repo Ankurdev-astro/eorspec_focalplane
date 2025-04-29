@@ -4,3 +4,4 @@ __init__.py-*
 fpi_data/*
 test_dir/*
 !fpi_data/fpi_plots/
+!fpi_data/fchl_h5/
