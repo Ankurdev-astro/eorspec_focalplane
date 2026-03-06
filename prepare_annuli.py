@@ -1,5 +1,6 @@
 """
 This script contains functions to prepare and mask detectors for annuli in the EoR-Spec focal plane.
+This scripts also modifies the correct PSD_NET and FWHM values for each band.
 It includes functionality to filter detectors based on radius and other parameters for TOAST simulations.
 """
 #Imports
@@ -13,10 +14,10 @@ import numpy as np
 # The bands are defined by the lower and upper frequency limits in GHz
 # For each band, we provide the expected PSD NET in K sqrt(s) and the FWHM in arcmin
 eorspec_bands = {
-            (200, 250): {"psd_net": 26.9e-6, "fwhm": 0.97},
-            (250, 320): {"psd_net": 41.97e-6, "fwhm": 0.8},
-            (320, 380): {"psd_net": 175.47e-6, "fwhm": 0.62},
-            (380, 440): {"psd_net": 497.05e-6, "fwhm": 0.55},
+            (200, 250): {"psd_net": 2000e-6, "fwhm": 0.97},
+            (250, 320): {"psd_net": 3121e-6, "fwhm": 0.8},
+            (320, 380): {"psd_net": 12302e-6, "fwhm": 0.62},
+            (380, 440): {"psd_net": 34848e-6, "fwhm": 0.55},
         }
 
 def get_psd_fwhm(channel):
@@ -143,6 +144,7 @@ def process_annuli_fchl(dets_table, fpistep_infotxt, target_fchl, fpi_step):
     """
     Returns a detector table with dets to be considered for the toast simulation of a particular
     FPI step and frequency channel
+    Modifies the psd_net, fwhm and bandwidth values for each channel
     
     Arguments:
     dets_table = astropy table with detector information

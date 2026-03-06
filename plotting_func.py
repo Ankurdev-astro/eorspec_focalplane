@@ -307,7 +307,7 @@ def plot_eorspec_annuli(
 
     fig = plt.figure(figsize=(xfigsize, yfigsize), dpi=figdpi)
     ax = fig.add_subplot(1, 1, 1)
-    fig.patch.set_facecolor('whitesmoke')
+    # fig.patch.set_facecolor('whitesmoke')
 
     half_width = 0.6 * width_deg
     half_height = 0.6 * height_deg
@@ -384,7 +384,7 @@ def plot_eorspec_annuli(
         ascale = 1.5
 
     #Plotting frame details
-    plt.title("EoR-Spec projected Focal Plane Arrays", fontsize="x-large")
+    # plt.title("EoR-Spec projected Focal Plane Arrays", fontsize="x-large")
     ax.set_xlabel("Boresight X Degrees", fontsize="medium")
     ax.set_ylabel("Boresight Y Degrees", fontsize="medium")
     ax.set_xlim([-half_width, half_width])
@@ -456,7 +456,7 @@ def animate_eorspec_annuli(
 
     fig = plt.figure(figsize=(xfigsize, yfigsize), dpi=figdpi)
     ax = fig.add_subplot(1, 1, 1)
-    fig.patch.set_facecolor('whitesmoke')
+    # fig.patch.set_facecolor('whitesmoke')
 
     half_width = 0.6 * width_deg
     half_height = 0.6 * height_deg
@@ -514,7 +514,7 @@ def animate_eorspec_annuli(
 
         ax.set_xlim([-half_width, half_width])
         ax.set_ylim([-half_height, half_height])
-        ax.set_title("EoR-Spec projected Focal Plane Arrays", fontsize="xx-large")
+        # ax.set_title("EoR-Spec projected Focal Plane Arrays", fontsize="xx-large")
         ax.set_xlabel("Boresight X Degrees", fontsize="large")
         ax.set_ylabel("Boresight Y Degrees", fontsize="large")
 
