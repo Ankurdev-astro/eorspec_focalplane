@@ -385,27 +385,29 @@ def plot_eorspec_annuli(
 
     #Plotting frame details
     # plt.title("EoR-Spec projected Focal Plane Arrays", fontsize="x-large")
-    ax.set_xlabel("Boresight X Degrees", fontsize="medium")
-    ax.set_ylabel("Boresight Y Degrees", fontsize="medium")
+    ax.set_xlabel("Boresight X (deg)", fontsize=16)
+    ax.set_ylabel("Boresight Y (deg)", fontsize=16)
+    ax.tick_params(axis="both", which="major", labelsize=14)
     ax.set_xlim([-half_width, half_width])
     ax.set_ylim([-half_height, half_height])
-    
+
     # Create a new axis for the colorbar
     #[left, bottom, width, height] weights[0:1]
     cb_ax = fig.add_axes([0.91, 0.124, 0.03, 0.754])
-    
+
     # Mapping the norm values to the colorbar
     sm = plt.cm.ScalarMappable(cmap=cmap, norm=norm)
     sm.set_array([])  # Placeholder
 
     reduced_ticks = boundaries[::10]
-    
-    # Add the colorbar
-    cbar = plt.colorbar(sm, boundaries=boundaries, 
-                        ticks=reduced_ticks, 
-                        orientation='vertical', cax=cb_ax)
-    cbar.set_label('EoR-Spec Band Frequencies [GHz]', size="x-large")
 
+    # Add the colorbar
+    cbar = plt.colorbar(sm, boundaries=boundaries,
+                        ticks=reduced_ticks,
+                        orientation='vertical', cax=cb_ax)
+    cbar.set_label("EoR-Spec Band Frequencies [GHz]", fontsize=16)
+    cbar.ax.tick_params(labelsize=14)
+    
     if outfile is None:
         output_plt = plt.show();
         print()
