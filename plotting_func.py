@@ -299,7 +299,7 @@ def plot_eorspec_annuli(
 
     xfigsize = 8
     yfigsize = 8
-    figdpi = 100
+    figdpi = 150
 
     # Compute the font size to use for detector labels
     # fontpix = 0.05 * figdpi
@@ -328,7 +328,7 @@ def plot_eorspec_annuli(
                 fpi_step = focalplane[d]["fpi_step"]
                 ax.text(0.4,0.6, 
                 fr"FPI step $f_0$: {fpi_step.split('step')[1]} GHz", 
-                color='black', fontsize="large", 
+                color='black', fontsize=16, 
                 horizontalalignment='center',
                 verticalalignment='center'
                 )
@@ -385,9 +385,9 @@ def plot_eorspec_annuli(
 
     #Plotting frame details
     # plt.title("EoR-Spec projected Focal Plane Arrays", fontsize="x-large")
-    ax.set_xlabel("Boresight X (deg)", fontsize=16)
-    ax.set_ylabel("Boresight Y (deg)", fontsize=16)
-    ax.tick_params(axis="both", which="major", labelsize=14)
+    ax.set_xlabel("Boresight X (deg)", fontsize=18)
+    ax.set_ylabel("Boresight Y (deg)", fontsize=18)
+    ax.tick_params(axis="both", which="major", labelsize=16)
     ax.set_xlim([-half_width, half_width])
     ax.set_ylim([-half_height, half_height])
 
@@ -406,7 +406,7 @@ def plot_eorspec_annuli(
                         ticks=reduced_ticks,
                         orientation='vertical', cax=cb_ax)
     cbar.set_label("EoR-Spec Band Frequencies [GHz]", fontsize=16)
-    cbar.ax.tick_params(labelsize=14)
+    cbar.ax.tick_params(labelsize=16)
     
     if outfile is None:
         output_plt = plt.show();
